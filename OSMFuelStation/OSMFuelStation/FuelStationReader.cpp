@@ -26,9 +26,12 @@ vector<FuelStation*> FuelStationReader::GetLukoilJSON(const string& path) {
     static const QString jsonFuelIdEktoDiesel = "ekto-diesel";
     static const QString jsonFuelId80 = "80";
     static const QString jsonFuelId92 = "92";
+    static const QString jsonFuelIdEkto92 = "ekto";
     static const QString jsonFuelId95 = "95";
+    static const QString jsonFuelIdEkto95 = "ekto-plus";
     static const QString jsonFuelId98 = "98";
     static const QString jsonFuelId98EktoSport = "ekto-sport";
+    static const QString jsonFuelIdLPG = "gas";
     static const QString jsonServiceIds = "ServiceIds";
     static const QString jsonOperator = "Operator";
     static const QString jsonStations = "Stations";
@@ -86,9 +89,9 @@ vector<FuelStation*> FuelStationReader::GetLukoilJSON(const string& path) {
                                     station->mFuelTypes.insert(DIESEL);
                                 else if (str == jsonFuelId80)
                                     station->mFuelTypes.insert(AI80);
-                                else if (str == jsonFuelId92)
+                                else if (str == jsonFuelId92 || str == jsonFuelIdEkto92)
                                     station->mFuelTypes.insert(AI92);
-                                else if (str == jsonFuelId95)
+                                else if (str == jsonFuelId95 || str == jsonFuelIdEkto95)
                                     station->mFuelTypes.insert(AI95);
                                 else if (str == jsonFuelId98 || str == jsonFuelId98EktoSport)
                                     station->mFuelTypes.insert(AI98);
