@@ -83,7 +83,7 @@ void ReadRegionConfigs(const string& path, vector<RegionConfig>& configs) {
                 value = obj.value("osm");
                 if (value.isString()) {
                     QString str = value.toString();
-                    configs.back().osm = value.toString().toLocal8Bit();
+                    configs.back().osm = value.toString().toLocal8Bit()+".xml";
                 }
                 value = obj.value("out");
                 if (value.isString()) {
