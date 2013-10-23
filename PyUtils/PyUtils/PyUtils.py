@@ -4,16 +4,24 @@ import os
 import json
 from pprint import pprint
 
-print('OSM Russia Downloader')
+def uploadToFtp(regions):
+    for region in regions:
+        lines.append(region["osm"]+'.html ')
+    lines.append('index.html')
+    subprocess.check_call([batUploader, lines])
+
 arc7zPath = r'c:\Program Files\7-Zip\7z.exe'
 arc7zExtract = 'e'
 arc7zNoPrompts = '-y'
 urlRootPath = 'http://data.gis-lab.info/osm_dump/dump/latest/'
 exeFuelFilter = r'OSMProcessor.exe'
 exeFuelStation = r'OSMFuelStation.exe'
+batUploader = r'FtpUploader.bat'
 
+print('OSM Russia Downloader')
 json_data=open('regions.cfg')
 regions = json.load(json_data)
+lines = []
 
 for region in regions:
     name = region["osm"]+'.osm.bz2'
@@ -25,6 +33,7 @@ for region in regions:
     subprocess.check_call([arc7zPath, arc7zNoPrompts, arc7zExtract, name])
     os.remove(name)
     subprocess.check_call([exeFuelFilter, region["osm"]])
-    os.remove(nameOSM)
+    os.remove(nameOSM)    
 
 subprocess.check_call([exeFuelStation])
+uploadToFtp(regions)
