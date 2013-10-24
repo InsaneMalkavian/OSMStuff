@@ -2,6 +2,7 @@
 import subprocess
 import os
 import json
+import codecs
 from pprint import pprint
 
 def uploadToFtp(regions):
@@ -19,8 +20,7 @@ exeFuelStation = r'OSMFuelStation.exe'
 batUploader = r'FtpUploader.bat'
 
 print('OSM Russia Downloader')
-json_data=open('regions.cfg')
-regions = json.load(json_data)
+regions = json.load(codecs.open('regions.cfg', 'r', 'utf-8-sig'))
 lines = []
 
 for region in regions:
