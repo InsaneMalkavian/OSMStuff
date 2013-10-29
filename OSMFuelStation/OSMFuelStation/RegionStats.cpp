@@ -3,6 +3,7 @@
 
 RegionStats::RegionStats(void)
 {
+    memset(&states, 0, sizeof(states));
 }
 
 

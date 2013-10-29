@@ -86,9 +86,24 @@ Web hosting\" src=\"http://www.counter160.com/images/11/right.png\" border=\"0\"
     timeinfo = localtime (&rawtime);    
     XMLNode date("h3", "Last update " + string(asctime(timeinfo)));
     body.AddChild(headerTitle).AddChild(date);
+
+    XMLNode table("table");
+    table.AddAttribute("width", "50%");
     for (int i = 0; i<stats.size(); i++) {
-        body.AddChild(XMLNode("a",stats.at(i).name).AddAttribute("href","http://osmfuel.net46.net/"+stats.at(i).link)).AddChild(XMLNode("br"));
+        XMLNode percentages("table");
+        percentages.AddAttribute("border", "1");
+        int sum = stats.at(i).states[0]+stats.at(i).states[1]+stats.at(i).states[2]+stats.at(i).states[3]+stats.at(i).states[4];
+        percentages.AddChild(XMLNode("tr")
+            .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[0])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[0]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::ODD)))
+            .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[1])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[1]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::NOT_PRESENT)))
+            .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[2])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[2]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::INVALID)))
+            .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[3])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[3]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::LOOKS_SIMILAR)))
+            .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[4])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[4]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::VALID))));
+        table.AddChild(XMLNode("tr").AddChild(XMLNode("td").AddChild(XMLNode("a",stats.at(i).name).AddAttribute("href","http://osmfuel.net46.net/"+stats.at(i).link)).AddChild(XMLNode("br")))
+            .AddChild(XMLNode("td").AddChild(percentages))
+            );
     }
+    body.AddChild(table);
     body.AddChild(counter);
     page.AddChild(body);    
     string srt = page.ToString();

@@ -172,7 +172,7 @@ string ComparedPair::GetColorStatus(const ValidationState mState) {
         ret = "lightgray";
         break;
     case ODD:
-        ret = "Odd";
+        ret = "white";
         break;
     }
     return ret;
