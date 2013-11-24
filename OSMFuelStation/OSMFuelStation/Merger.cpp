@@ -50,9 +50,8 @@ ComparedPair Merger::ComparePair(const FuelStation* original, const FuelStation*
     if (!original->mBrand.empty() && original->mBrand == applicant->mName) match|=Match::BRAND;
     if (!original->mBrand.empty() && original->mBrand == applicant->mOperator) match|=Match::BRAND;
 
-    if (original->mLat != Utils::INVALID_LATLON || original->mLon != Utils::INVALID_LATLON || 
-        applicant->mLat != Utils::INVALID_LATLON || applicant->mLon != Utils::INVALID_LATLON) {
-        offset = Utils::Distance(original->mLat, original->mLon, applicant->mLat, applicant->mLon)*1000;
+    if (original->hasCoords() || applicant->hasCoords()) {
+        offset = Utils::Distance(original->getLat(), original->getLon(), applicant->getLat(), applicant->getLon())*1000;
         if (offset<OFFSET_LIMIT) match|=Match::COORDS;
     }
     if (original->mFuelTypes == applicant->mFuelTypes) match|=Match::FUEL;

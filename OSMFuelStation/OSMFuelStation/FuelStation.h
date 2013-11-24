@@ -13,13 +13,23 @@ public:
     virtual ~FuelStation(void);
 
 public:
+    bool hasFuelTypes() const;
+    set<FuelTypes>& getFuelTypes() const;
+    bool hasCoords() const;
+    double getLat() const;
+    double getLon() const;
+    void setLat(const double lat);
+    void setLon(const double lon);
     string mBrand;
     string mOperator;
     string mName;
     string mAddress;
+protected:
     double mLat;
     double mLon;
+public:
     int mRef;
     int mLocalRef;
+    int mID;
     set<FuelTypes> mFuelTypes;
 };

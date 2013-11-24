@@ -1,9 +1,17 @@
-#include "FuelStationReader.h"
+﻿#include "FuelStationReader.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QFile>
 #include <QDomDocument>
+#include <QXmlStreamReader>
+#include <QMap>
+#include <QStringList>
+#include <QVariant>
+#include "Logger.h"
+#include "Utils.h"
+
+using namespace std;
 
 FuelStationReader::FuelStationReader(void)
 {
@@ -73,11 +81,11 @@ vector<FuelStation*> FuelStationReader::GetLukoilJSON(const string& path) {
                     }
                     value = obj.value(jsonLat); // coordinates
                     if (value.isDouble()) {
-                        station->mLat = value.toDouble();
+                        station->setLat(value.toDouble());
                     }
                     value = obj.value(jsonLng);
                     if (value.isDouble()) {
-                        station->mLon = value.toDouble();
+                        station->setLon(value.toDouble());
                     }
                     value = obj.value(jsonFuelIds); // get fuel types
                     if (value.isArray()) {
@@ -98,12 +106,76 @@ vector<FuelStation*> FuelStationReader::GetLukoilJSON(const string& path) {
                             }
                         }
                     }
-                    station->mBrand="������";
+                    station->mBrand="Лукойл";
                     station->mOperator=stOperator.toLocal8Bit();
                 }
             }
         }
     }
+    return stations;
+}
+
+vector<FuelStation*> FuelStationReader::GetGazpromNeftHTML(const string& path) {    
+    vector<FuelStation*> stations;
+    return stations;
+}
+
+vector<FuelStation*> FuelStationReader::GetTatNeftCSVAll(const string& path) {
+    static QMap <QString, vector<FuelStation*> > azs;
+    vector<FuelStation*> stations;
+    if (azs.empty()) {
+        QVariantMap map_codes;
+        QFile cfg("tatneft.cfg");
+        if (!cfg.open(QIODevice::ReadOnly | QIODevice::Text))
+            return stations;
+        QString content = cfg.readAll();
+        cfg.close();
+        
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(content.toUtf8());
+        if (jsonDoc.isArray()) {
+            const QJsonArray array = jsonDoc.array(); // list of regions
+            for (QJsonArray::const_iterator i = array.constBegin(); i != array.constEnd(); ++i) {
+                if ((*i).isObject()) {              
+                    const QJsonObject obj = (*i).toObject();
+                    map_codes = obj.toVariantMap();
+                }
+            }
+        }
+
+        QFile file("tatneft.csv");
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return stations;
+
+        FuelStation* station;
+        while (!file.atEnd()) {
+            QString line = file.readLine();
+            QStringList list = line.split(";");
+            if (!list.at(0).isEmpty()) {
+                QString region(list.at(0));
+                region = region.trimmed();
+                QString code = "no";
+                if (map_codes.contains(region)) {
+                    code = map_codes.value(region).toString();
+                }
+
+                if (code!="no") {
+                    station = new FuelStation();
+                    azs[code].push_back(station);
+                    station->mBrand = "Татнефть";
+                    //station->mName = "Татнефть";
+                    QString ref = list.at(2).right(list.at(2).length()-2);
+                    station->mLocalRef = ref.toInt();
+                    station->mAddress = list.at(3).toLocal8Bit();
+                }
+            }
+        }
+    }
+    vector<FuelStation*> reg = azs.value(QString::fromUtf8( path.data(), path.size()));
+    for (int i = 0; i<reg.size(); i++) {
+        FuelStation* station = new FuelStation(*reg.at(i));
+        stations.push_back(station);
+    }
+
     return stations;
 }
 
@@ -132,8 +204,9 @@ vector<FuelStation*> FuelStationReader::GetAllOSMXML(const string& path) {
         station = new FuelStation();
         stations.push_back(station);
         QDomElement element = node.toElement();
-        station->mLat = element.attribute("lat").toDouble();
-        station->mLon = element.attribute("lon").toDouble();
+        station->setLat(element.attribute("lat").toDouble());
+        station->setLon(element.attribute("lon").toDouble());
+        station->mID = element.attribute("id").toInt();
         for(QDomNode tag = element.firstChild(); !tag.isNull(); tag = tag.nextSibling()) {
             QDomElement tagEle = tag.toElement();
             QString key = tagEle.attribute("k");
@@ -175,6 +248,10 @@ vector<FuelStation*> FuelStationReader::GetAllOSMXML(const string& path) {
 
 vector<FuelStation*> FuelStationReader::GetData(const string& func, const string& path) {
     if (func=="GetLukoilJSON")
-        return GetLukoilJSON(path);    
+        return GetLukoilJSON(path);
+    else if (func=="GetGazpromNeftHTML")
+        return GetGazpromNeftHTML(path);
+    else if (func=="GetTatNeftCSVAll")
+        return GetTatNeftCSVAll(path);
     return vector<FuelStation*>();
 }

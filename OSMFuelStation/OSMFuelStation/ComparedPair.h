@@ -36,6 +36,7 @@ public:
     string GetColorStatus() const;
     static string GetColorStatus(const ValidationState mState);
     string GetLinkCoords(const string& mask) const;
+    string GetOSMNodeURL(const string& mask) const;
 public:    
     string mNameOSM;
     string mOperatorOSM;
@@ -45,6 +46,7 @@ public:
     double mOffset;
     int mRefOSM;
     int mLocalRefOSM;
+    int mIDOSM;
     set<FuelTypes> mFuelTypesOSM;
     ValidationState mState;
 private:

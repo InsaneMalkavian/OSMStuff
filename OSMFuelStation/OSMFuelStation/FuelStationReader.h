@@ -11,6 +11,8 @@ public:
     FuelStationReader(void);
     ~FuelStationReader(void);
     static vector<FuelStation*> GetLukoilJSON(const string& path);
+    static vector<FuelStation*> GetGazpromNeftHTML(const string& path);
+    static vector<FuelStation*> GetTatNeftCSVAll(const string& path);
     static vector<FuelStation*> GetAllOSMXML(const string& path);
     static vector<FuelStation*> GetData(const string& func, const string& path);
 };

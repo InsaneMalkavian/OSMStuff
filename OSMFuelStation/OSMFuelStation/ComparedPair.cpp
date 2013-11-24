@@ -2,7 +2,7 @@
 #include <sstream>
 #include "Utils.h"
 
-ComparedPair::ComparedPair(void) : mLatOSM(Utils::INVALID_LATLON), mLonOSM(Utils::INVALID_LATLON), mOffset(-1.), mRefOSM(), mLocalRefOSM(-1), mState(NOT_PRESENT)
+ComparedPair::ComparedPair(void) : mLatOSM(Utils::INVALID_LATLON), mLonOSM(Utils::INVALID_LATLON), mOffset(-1.), mRefOSM(), mLocalRefOSM(-1), mState(NOT_PRESENT), mIDOSM(-1)
 {
 }
 
@@ -11,13 +11,13 @@ ComparedPair::~ComparedPair(void)
 {
 }
 
-ComparedPair::ComparedPair(const FuelStation& ref) : mLatOSM(Utils::INVALID_LATLON), mLonOSM(Utils::INVALID_LATLON), mOffset(-1.), mRefOSM(), mLocalRefOSM(-1), mState(NOT_PRESENT) {
+ComparedPair::ComparedPair(const FuelStation& ref) : mLatOSM(Utils::INVALID_LATLON), mLonOSM(Utils::INVALID_LATLON), mOffset(-1.), mRefOSM(), mLocalRefOSM(-1), mState(NOT_PRESENT), mIDOSM(-1) {
     mBrand = ref.mBrand;
     mOperator = ref.mOperator;
     mName = ref.mName;
     mAddress = ref.mAddress;
-    mLat = ref.mLat;
-    mLon = ref.mLon;
+    mLat = ref.getLat();
+    mLon = ref.getLon();
     mRef = ref.mRef;
     mLocalRef = ref.mLocalRef;
     mFuelTypes = ref.mFuelTypes;
@@ -28,8 +28,8 @@ void ComparedPair::SetOriginal(const FuelStation& ref) {
     mOperator = ref.mOperator;
     mName = ref.mName;
     mAddress = ref.mAddress;
-    mLat = ref.mLat;
-    mLon = ref.mLon;
+    mLat = ref.getLat();
+    mLon = ref.getLon();
     mRef = ref.mRef;
     mLocalRef = ref.mLocalRef;
     mFuelTypes = ref.mFuelTypes;
@@ -39,11 +39,12 @@ void ComparedPair::SetApplicant(const FuelStation& ref) {
     mBrandOSM = ref.mBrand;
     mOperatorOSM = ref.mOperator;
     mNameOSM = ref.mName;
-    mLatOSM = ref.mLat;
-    mLonOSM = ref.mLon;
+    mLatOSM = ref.getLat();
+    mLonOSM = ref.getLon();
     mLocalRefOSM = ref.mLocalRef;
     mRefOSM = ref.mRef;
     mFuelTypesOSM = ref.mFuelTypes;
+    mIDOSM = ref.mID;
 }
 
 string ComparedPair::GetBrand() const {
@@ -71,6 +72,7 @@ string ComparedPair::GetLocalRef() const {
 }
 
 string ComparedPair::GetCoords() const {
+    if (mLat==Utils::INVALID_LATLON || mLon == Utils::INVALID_LATLON) return string();
     std::stringstream oss;
     oss << mLat <<", " << mLon;
     return oss.str();
@@ -181,5 +183,12 @@ string ComparedPair::GetColorStatus(const ValidationState mState) {
 string ComparedPair::GetLinkCoords(const string& mask) const {
     string ret = "http://openstreetmap.ru/#layer=M&zoom=17&lat=";
     ret+=Utils::DoubleToStr(mLat)+"&lon="+Utils::DoubleToStr(mLon);
+    return ret;
+}
+
+string ComparedPair::GetOSMNodeURL(const string& mask) const {
+    if (mIDOSM==-1) return string();
+    string ret = "http://www.openstreetmap.org/browse/node/";
+    ret+=Utils::IntToStr(mIDOSM);
     return ret;
 }

@@ -33,7 +33,9 @@ void HTMLSerializer::SaveRegionToHTML(const string& path, const vector<ComparedP
         root.AddChild(XMLNode("tr").AddAttribute("bgcolor",pairs.at(i)->GetColorStatus()).AddChild(XMLNode("td", pairs.at(i)->GetBrand())).AddChild(XMLNode("td", pairs.at(i)->GetOperator()))
             .AddChild(XMLNode("td", pairs.at(i)->GetLocalRef())).AddChild(XMLNode("td", pairs.at(i)->mAddress)).AddChild(XMLNode("td", pairs.at(i)->GetName()))
             .AddChild(XMLNode("td").AddChild(XMLNode("a",pairs.at(i)->GetCoords()).AddAttribute("href",pairs.at(i)->GetLinkCoords(""))))
-            .AddChild(XMLNode("td", pairs.at(i)->GetCoordsOSM())).AddChild(XMLNode("td", pairs.at(i)->GetOffset()))
+            .AddChild(XMLNode("td", pairs.at(i)->GetCoordsOSM() + " " + XMLNode("a").AddAttribute("href",pairs.at(i)->GetOSMNodeURL(""))
+            .AddChild(XMLNode("img").AddAttribute("src","images/osm_node.png")).ToString()))
+            .AddChild(XMLNode("td", pairs.at(i)->GetOffset()))
             .AddChild(XMLNode("td", pairs.at(i)->GetDiesel())).AddChild(XMLNode("td", pairs.at(i)->Get80())).AddChild(XMLNode("td", pairs.at(i)->Get92()))
             .AddChild(XMLNode("td", pairs.at(i)->Get95())).AddChild(XMLNode("td", pairs.at(i)->Get98())).AddChild(XMLNode("td", pairs.at(i)->GetPetroGas()))
             .AddChild(XMLNode("td", pairs.at(i)->GetStatus()))
@@ -57,7 +59,8 @@ Web hosting\" src=\"http://www.counter160.com/images/11/right.png\" border=\"0\"
     timeinfo = localtime (&rawtime);    
     XMLNode date("h3", "Last update " + string(asctime(timeinfo)));
     XMLNode percTable("table");
-    percTable.AddAttribute("border", "1").AddAttribute("width", "100%").AddChild(XMLNode("tr").AddChild(XMLNode("td", Utils::IntToStr(scores[0])+" ODD").AddAttribute("width",Utils::IntToStr(100.f*scores[0]/pairs.size())+"%"))
+    percTable.AddAttribute("border", "1").AddAttribute("width", "100%").AddChild(XMLNode("tr")
+        .AddChild(XMLNode("td", Utils::IntToStr(scores[0])+" ODD").AddAttribute("width",Utils::IntToStr(100.f*scores[0]/pairs.size())+"%"))
         .AddChild(XMLNode("td", Utils::IntToStr(scores[1])+" NP").AddAttribute("width",Utils::IntToStr(100.f*scores[1]/pairs.size())+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::NOT_PRESENT)))
         .AddChild(XMLNode("td", Utils::IntToStr(scores[2])+" INV").AddAttribute("width",Utils::IntToStr(100.f*scores[2]/pairs.size())+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::INVALID)))
         .AddChild(XMLNode("td", Utils::IntToStr(scores[3])+" LG").AddAttribute("width",Utils::IntToStr(100.f*scores[3]/pairs.size())+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::LOOKS_SIMILAR)))
@@ -99,7 +102,7 @@ Web hosting\" src=\"http://www.counter160.com/images/11/right.png\" border=\"0\"
             .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[2])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[2]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::INVALID)))
             .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[3])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[3]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::LOOKS_SIMILAR)))
             .AddChild(XMLNode("td", Utils::IntToStr(stats.at(i).states[4])).AddAttribute("width",Utils::IntToStr(100.f*stats.at(i).states[4]/sum)+"%").AddAttribute("bgcolor",ComparedPair::GetColorStatus(ComparedPair::VALID))));
-        table.AddChild(XMLNode("tr").AddChild(XMLNode("td").AddChild(XMLNode("a",stats.at(i).name).AddAttribute("href","http://osmfuel.net46.net/"+stats.at(i).link)).AddChild(XMLNode("br")))
+        table.AddChild(XMLNode("tr").AddChild(XMLNode("td").AddAttribute("width", "45%").AddChild(XMLNode("a",stats.at(i).name).AddAttribute("href","http://osmfuel.net46.net/"+stats.at(i).link)).AddChild(XMLNode("br")))
             .AddChild(XMLNode("td").AddChild(percentages))
             );
     }

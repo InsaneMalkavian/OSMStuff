@@ -11,6 +11,8 @@
 #include "Merger.h"
 #include "HTMLSerializer.h"
 #include "RegionStats.h"
+#include "Statistics.h"
+#include "Logger.h"
 
 struct RegionConfig {
     string name;
@@ -23,6 +25,8 @@ void ReadRegionConfigs(const string& path, vector<RegionConfig>& configs);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+    Statistics statistics;    
+
     vector<RegionConfig> regions;
     vector<RegionStats> stats;
     ReadRegionConfigs("regions.cfg", regions); // read list of regions with configs
@@ -32,6 +36,7 @@ int _tmain(int argc, _TCHAR* argv[])
     for (int i = 0; i<regions.size(); i++) { // foreach region
         printf("%d: %s\n", i, regions.at(i).name.c_str());
         printf("Retrieving references\n");
+        statistics.Restart();
         vector<FuelStation*> stations; // references stations (gazprom, lukoil, tatneft, etc)
         for (int k = 0; k<regions.at(i).refs.size(); k++) { // create one super-list, non-efficient
             vector<FuelStation*> passStations = FuelStationReader::GetData(regions.at(i).refs.at(k).first,regions.at(i).refs.at(k).second);
@@ -41,13 +46,18 @@ int _tmain(int argc, _TCHAR* argv[])
         vector<FuelStation*> stationsOSM  = FuelStationReader::GetAllOSMXML(regions.at(i).osm);
         vector<ComparedPair*> result;
         Merger merger;
+        printf("Time spent on reading: %lf\n", statistics.GetStWatch()); // osm stations
         printf("Comparing lists\n");
+        
+        // create small stat structure
         stats.push_back(RegionStats());
         result = merger.CompareLists(stations, stationsOSM, stats.back()); // compare stations
         stats.back().name = regions.at(i).name;
-        stats.back().link = regions.at(i).out;
+        stats.back().link = regions.at(i).out;  
+        printf("Time spent on reading and processing: %lf\n", statistics.GetStWatch()); // osm stations
         printf("Saving results\n");
         HTMLSerializer::SaveRegionToHTML(regions.at(i).out, result, regions.at(i).name); //save each region
+        printf("Time spent in total: %lf\n", statistics.GetStWatch()); // osm stations
         for (std::vector<FuelStation*>::iterator it = stations.begin() ; it != stations.end(); ++it)
             delete (*it);
         for (std::vector<FuelStation*>::iterator it = stationsOSM.begin() ; it != stationsOSM.end(); ++it)
