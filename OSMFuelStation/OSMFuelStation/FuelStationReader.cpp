@@ -43,6 +43,7 @@ vector<FuelStation*> FuelStationReader::GetLukoilJSON(const string& path) {
     static const QString jsonServiceIds = "ServiceIds";
     static const QString jsonOperator = "Operator";
     static const QString jsonStations = "Stations";
+    static const string brand_op = "Лукойл";
     QString stOperator;
     vector<FuelStation*> stations;
     FuelStation* station = NULL;
@@ -106,7 +107,7 @@ vector<FuelStation*> FuelStationReader::GetLukoilJSON(const string& path) {
                             }
                         }
                     }
-                    station->mBrand="Лукойл";
+                    station->mBrand=brand_op;
                     station->mOperator=stOperator.toLocal8Bit();
                 }
             }
@@ -121,11 +122,16 @@ vector<FuelStation*> FuelStationReader::GetGazpromNeftHTML(const string& path) {
 }
 
 vector<FuelStation*> FuelStationReader::GetTatNeftCSVAll(const string& path) {
+    static const QString CONFIG = "tatneft.cfg";
+    static const QString CSV = "tatneft.csv";
+    static const QString NO_CODE = "no";
+    static const string BRAND = "Татнефть";
+    static const QString SEP = ";";
     static QMap <QString, vector<FuelStation*> > azs;
     vector<FuelStation*> stations;
     if (azs.empty()) {
         QVariantMap map_codes;
-        QFile cfg("tatneft.cfg");
+        QFile cfg(CONFIG);
         if (!cfg.open(QIODevice::ReadOnly | QIODevice::Text))
             return stations;
         QString content = cfg.readAll();
@@ -133,7 +139,7 @@ vector<FuelStation*> FuelStationReader::GetTatNeftCSVAll(const string& path) {
         
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(content.toUtf8());
         if (jsonDoc.isArray()) {
-            const QJsonArray array = jsonDoc.array(); // list of regions
+            const QJsonArray array = jsonDoc.array();
             for (QJsonArray::const_iterator i = array.constBegin(); i != array.constEnd(); ++i) {
                 if ((*i).isObject()) {              
                     const QJsonObject obj = (*i).toObject();
@@ -142,26 +148,26 @@ vector<FuelStation*> FuelStationReader::GetTatNeftCSVAll(const string& path) {
             }
         }
 
-        QFile file("tatneft.csv");
+        QFile file(CSV);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return stations;
 
         FuelStation* station;
         while (!file.atEnd()) {
             QString line = file.readLine();
-            QStringList list = line.split(";");
+            QStringList list = line.split(SEP);
             if (!list.at(0).isEmpty()) {
                 QString region(list.at(0));
                 region = region.trimmed();
-                QString code = "no";
+                QString code = NO_CODE;
                 if (map_codes.contains(region)) {
                     code = map_codes.value(region).toStringList().at(0);
                 }
 
-                if (code!="no") {
+                if (code!=NO_CODE) {
                     station = new FuelStation();
                     azs[code].push_back(station);
-                    station->mBrand = "Татнефть";
+                    station->mBrand = BRAND;
                     station->mOperator = map_codes.value(region).toStringList().at(1).toLocal8Bit();
                     //station->mName = "Татнефть";
                     QString ref = list.at(2).right(list.at(2).length()-2);
@@ -191,13 +197,12 @@ vector<FuelStation*> FuelStationReader::GetAllOSMXML(const string& path) {
     int errorLine, errorColumn;
     QString errorMsg;
     QDomDocument document;
-    if (!document.setContent(&file, &errorMsg, &errorLine, &errorColumn))
-    {
-            QString error("Syntax error line %1, column %2:\n%3");
-            error = error
-                    .arg(errorLine)
-                    .arg(errorColumn)
-                    .arg(errorMsg);
+    if (!document.setContent(&file, &errorMsg, &errorLine, &errorColumn)) {
+        QString error("Syntax error line %1, column %2:\n%3");
+        error = error
+            .arg(errorLine)
+            .arg(errorColumn)
+            .arg(errorMsg);
         return stations;
     }
     QDomElement rootElement = document.firstChild().toElement();
