@@ -155,13 +155,14 @@ vector<FuelStation*> FuelStationReader::GetTatNeftCSVAll(const string& path) {
                 region = region.trimmed();
                 QString code = "no";
                 if (map_codes.contains(region)) {
-                    code = map_codes.value(region).toString();
+                    code = map_codes.value(region).toStringList().at(0);
                 }
 
                 if (code!="no") {
                     station = new FuelStation();
                     azs[code].push_back(station);
                     station->mBrand = "Татнефть";
+                    station->mOperator = map_codes.value(region).toStringList().at(1).toLocal8Bit();
                     //station->mName = "Татнефть";
                     QString ref = list.at(2).right(list.at(2).length()-2);
                     station->mLocalRef = ref.toInt();

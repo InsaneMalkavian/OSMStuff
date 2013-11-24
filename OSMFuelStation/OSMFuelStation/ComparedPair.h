@@ -1,7 +1,7 @@
 #pragma once
 #include "FuelStation.h"
 
-class ComparedPair : public FuelStation
+class ComparedPair
 {
 public:
     enum ValidationState {
@@ -21,6 +21,7 @@ public:
     string GetBrand() const;
     string GetOperator() const;
     string GetName() const;
+    string GetAddress() const;
     string GetRef() const;
     string GetLocalRef() const;
     string GetCoords() const;
@@ -52,4 +53,7 @@ public:
 private:
     bool ContainsFuel(const set<FuelTypes>& set, FuelTypes type) const;
     string GetFuelType(const FuelTypes type) const;
+private:
+    FuelStation mOriginal; // should be taken from ref data
+    FuelStation mApplicant; // osm data
 };

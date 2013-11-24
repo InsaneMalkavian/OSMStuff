@@ -31,7 +31,7 @@ void HTMLSerializer::SaveRegionToHTML(const string& path, const vector<ComparedP
         );
     for (int i = 0; i<pairs.size(); i++) {
         root.AddChild(XMLNode("tr").AddAttribute("bgcolor",pairs.at(i)->GetColorStatus()).AddChild(XMLNode("td", pairs.at(i)->GetBrand())).AddChild(XMLNode("td", pairs.at(i)->GetOperator()))
-            .AddChild(XMLNode("td", pairs.at(i)->GetLocalRef())).AddChild(XMLNode("td", pairs.at(i)->mAddress)).AddChild(XMLNode("td", pairs.at(i)->GetName()))
+            .AddChild(XMLNode("td", pairs.at(i)->GetLocalRef())).AddChild(XMLNode("td", pairs.at(i)->GetAddress())).AddChild(XMLNode("td", pairs.at(i)->GetName()))
             .AddChild(XMLNode("td").AddChild(XMLNode("a",pairs.at(i)->GetCoords()).AddAttribute("href",pairs.at(i)->GetLinkCoords(""))))
             .AddChild(XMLNode("td", pairs.at(i)->GetCoordsOSM() + " " + XMLNode("a").AddAttribute("href",pairs.at(i)->GetOSMNodeURL(""))
             .AddChild(XMLNode("img").AddAttribute("src","images/osm_node.png")).ToString()))
