@@ -218,3 +218,4 @@ pip-log.txt
 FuelValidator/*.html
 FuelValidator/*.xml
 FuelValidator/*.json
+OSMFuelStation/OSMFuelStation/*.html
